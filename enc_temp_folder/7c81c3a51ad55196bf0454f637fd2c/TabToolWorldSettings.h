@@ -30,7 +30,8 @@ protected:
 	FOnClicked onClicked;
 
 	FReply HitButton();
-	void TestCallback(AActor* _actor);
+	void TestCallback(AActor* _osef);
+	void TestCallback(AActor* _osef, UObject* _osef2);
 
 
 	// Details test

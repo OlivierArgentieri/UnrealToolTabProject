@@ -14,6 +14,7 @@ void TabToolWorldSettings::Construct(const FArguments& _inArgs)
 
 	GEngine->OnLevelActorDeleted().AddRaw(this, &TabToolWorldSettings::TestCallback);
 	GEngine->OnLevelActorAdded().AddRaw(this, &TabToolWorldSettings::TestCallback);
+	GEngine->OnLevelActorOuterChanged().AddRaw(this, &TabToolWorldSettings::TestCallback);
 	GEditor->RegisterForUndo(this);
 
 
@@ -96,11 +97,14 @@ FReply TabToolWorldSettings::HitButton()
 	return FReply::Handled();
 }
 
-void TabToolWorldSettings::TestCallback(AActor* _actor)
+void TabToolWorldSettings::TestCallback(AActor* _osef)
 {
 	InitDetails();
 }
-
+void TabToolWorldSettings::TestCallback(AActor* _osef, UObject* _osef2)
+{
+	InitDetails();
+}
 float TabToolWorldSettings::GetSceneLightIntensity() const
 {
 	if (!sceneSkyLight) return 0;
