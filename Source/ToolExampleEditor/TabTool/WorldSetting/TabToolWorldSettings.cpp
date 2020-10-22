@@ -19,19 +19,24 @@ public:
 	virtual TArray<FDetailsViewObjectRoot> FilterObjects(const TArray<UObject*>& SourceObjects) override
 	{
 		TArray<FDetailsViewObjectRoot> _toReturn = TArray<FDetailsViewObjectRoot>();
-		UTestFilterUObject* MyFilter = NewObject<UTestFilterUObject>();
-		FDetailsViewObjectRoot _first = FDetailsViewObjectRoot();
-		USkyLightComponent* _skyLight = Cast<USkyLightComponent>(SourceObjects[0]);
 
-		
+
+		UTestFilterUObject* MyFilter = NewObject<UTestFilterUObject>();
+
+		FDetailsViewObjectRoot _first = FDetailsViewObjectRoot();
+		ASkyLight* _skyLight = Cast<ASkyLight>(SourceObjects[0]);
+
+		MyFilter->Cubemap = _skyLight->GetLightComponent()->Cubemap;
+		MyFilter->CubemapResolution = _skyLight->GetLightComponent()->CubemapResolution;
+
 		_first.Objects.Add(MyFilter);
 
 
 		_toReturn.Add(_first.Objects[0]);
-		
+
 		return _toReturn;
 	}
-	
+
 };
 
 #define LOCTEXT_NAMESPACE "TabToolWorldSettings"
@@ -44,24 +49,30 @@ void TabToolWorldSettings::Construct(const FArguments& _inArgs)
 	GEngine->OnLevelActorAdded().AddRaw(this, &TabToolWorldSettings::TestCallback);
 	GEditor->RegisterForUndo(this);
 
+	InitDetails();
+        TArray<UObject*> _testArray = TArray<UObject*>();
+
+	_testArray.Add(sceneSkyLight);
+	
+	TSharedPtr<TestFilter> filter(new TestFilter);
+	filter.Get()->FilterObjects(_testArray);
 	// setup the detail view settings
 	FDetailsViewArgs DetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
 	DetailsViewArgs.bShowActorLabel = false;
+	DetailsViewArgs.ObjectFilter = filter;
+
 	TSharedRef<IDetailsView> WorldSettingsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(DetailsViewArgs);
-
-
 	
-	InitDetails();
 	WorldSettingsView->SetObject(sceneSkyLight);
-	TSharedPtr<TestFilter> filter(new TestFilter);
-	TArray<UObject*> _testArray = TArray<UObject*>();
+	
+	
+	
 
-	_testArray.Add(sceneSkyLight->GetLightComponent());
-	filter.Get()->FilterObjects(_testArray);
-	WorldSettingsView->SetObjectFilter(filter);
+
+	//WorldSettingsView->SetObjectFilter(filter);
 	skyLightIntensity.Bind(this, &TabToolWorldSettings::GetSceneLightIntensity);
 	skyLightExist.Bind(this, &TabToolWorldSettings::GetSceneLightExist);
-	
+
 	if (tool.IsValid())
 	{
 		// action from tool object
@@ -69,111 +80,111 @@ void TabToolWorldSettings::Construct(const FArguments& _inArgs)
 
 	ChildSlot
 		[
-			SNew(SScrollBox)
-			+ SScrollBox::Slot()
-			.VAlign(VAlign_Top)
-			.Padding(5)
-			[
-				SNew(SBorder)
-				.BorderBackgroundColor(FColor(192, 192, 192, 255))
-				.Padding(15.0f)
-				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot().AutoWidth().FillWidth(0.5f)[SNew(STextBlock).Text(FText::FromString("Light Intensity"))]
-					+ SHorizontalBox::Slot().AutoWidth().FillWidth(0.5f)
-					[
-						SNew(SSpinBox<float>)
-						.Value(skyLightIntensity)
-						.Tag("LightIntensity")
-						.OnValueChanged(this, &TabToolWorldSettings::OnIntensityChanged)
-						.MinValue(-20.0f).MaxValue(20.0f).Value(0.5f)
-						.IsEnabled(skyLightExist)
-					]
-				]
-			]
-			+ SScrollBox::Slot()
+		SNew(SScrollBox)
+		+ SScrollBox::Slot()
+		.VAlign(VAlign_Top)
+		.Padding(5)
+		[
+			SNew(SBorder)
+			.BorderBackgroundColor(FColor(192, 192, 192, 255))
+		.Padding(15.0f)
+		[
+			SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot().AutoWidth().FillWidth(0.5f)[SNew(STextBlock).Text(FText::FromString("Light Intensity"))]
+		+ SHorizontalBox::Slot().AutoWidth().FillWidth(0.5f)
+		[
+			SNew(SSpinBox<float>)
+			.Value(skyLightIntensity)
+		        .Tag("LightIntensity")
+		    .OnValueChanged(this, &TabToolWorldSettings::OnIntensityChanged)
+		      .MinValue(-20.0f).MaxValue(20.0f).Value(0.5f)
+		    .IsEnabled(skyLightExist)
+		]
+		]
+		]
+		+ SScrollBox::Slot()
 			.VAlign(VAlign_Top)
 			.Padding(5)
 			[
 				SNew(SButton)
 				.OnClicked(this, &TabToolWorldSettings::HitButton)
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString("test"))
-					.ToolTipText(LOCTEXT("OSEF", "Click !"))
-				]
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString("test"))
+			.ToolTipText(LOCTEXT("OSEF", "Click !"))
 			]
-			+ SScrollBox::Slot()
-				.VAlign(VAlign_Top)
-				.Padding(5)
+			]
+	+ SScrollBox::Slot()
+		.VAlign(VAlign_Top)
+		.Padding(5)
 
-				[
-					SNew(SBorder)
-					.BorderBackgroundColor(FColor(192, 192, 192, 255))
-					.Padding(15.0f)
-					[
-						SNew(SVerticalBox) // title PostProcess
-						+ SVerticalBox::Slot()[SNew(STextBlock).Text(FText::FromString("Post Process"))]
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(SBorder) 
-							.BorderBackgroundColor(FColor(192, 192, 192, 255))
-							.Padding(15.0f)
-							[
-								
-								SNew(SBox)
-								//.HAlign(HAlign_Left)
-								[
-									SNew(SSplitter)
-									.MinimumSlotHeight(2)
-									.Orientation(Orient_Horizontal)
-									.PhysicalSplitterHandleSize(1)
-									.HitDetectionSplitterHandleSize(5.0f)
-									+ SSplitter::Slot().Value(0.672f)
-									[
-										SNew(STextBlock)
-										.Text(FText::FromString("test"))
-										.ToolTipText(LOCTEXT("OSEF", "Click !"))
-									]
-									+ SSplitter::Slot().Value(0.672f)
-									[
+		[
+			SNew(SBorder)
+			.BorderBackgroundColor(FColor(192, 192, 192, 255))
+		.Padding(15.0f)
+		[
+			SNew(SVerticalBox) // title PostProcess
+			+ SVerticalBox::Slot()[SNew(STextBlock).Text(FText::FromString("Post Process"))]
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SNew(SBorder)
+			.BorderBackgroundColor(FColor(192, 192, 192, 255))
+		.Padding(15.0f)
+		[
 
-										SNew(SSpinBox<float>)
-										.Value(skyLightIntensity)
-										.Tag("LightIntensity")
-										.OnValueChanged(this, &TabToolWorldSettings::OnIntensityChanged)
-										.MinValue(0).MaxValue(50000.0f).Value(0.5f)
-										.IsEnabled(skyLightExist)
+			SNew(SBox)
+			//.HAlign(HAlign_Left)
+		[
+			SNew(SSplitter)
+			.MinimumSlotHeight(2)
+		.Orientation(Orient_Horizontal)
+		.PhysicalSplitterHandleSize(1)
+		.HitDetectionSplitterHandleSize(5.0f)
+		+ SSplitter::Slot().Value(0.672f)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString("test"))
+		.ToolTipText(LOCTEXT("OSEF", "Click !"))
+		]
+	+ SSplitter::Slot().Value(0.672f)
+		[
 
-									]
+			SNew(SSpinBox<float>)
+			.Value(skyLightIntensity)
+		.Tag("LightIntensity")
+		.OnValueChanged(this, &TabToolWorldSettings::OnIntensityChanged)
+		.MinValue(0).MaxValue(50000.0f).Value(0.5f)
+		.IsEnabled(skyLightExist)
 
-								]
-							]
-							
-						]
-						
-					]
+		]
 
-					/*
-					SNew(SVerticalBox)
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Left)
-					.VAlign(VAlign_Center)
-					[
-					//	SNew(SListPanel)
-					//	.NumDesiredItems(7)
-						SNew(STextBlock)
-						.Text(FText::FromString("test"))
-						.ToolTipText(LOCTEXT("OSEF", "Click !"))
-					]*/
-				]
-				 +SScrollBox::Slot()
-				.VAlign(VAlign_Top)
-				.Padding(5)
-				 [
-					WorldSettingsView
-				 ]
+		]
+		]
+
+		]
+
+		]
+
+	/*
+	SNew(SVerticalBox)
+	+ SVerticalBox::Slot()
+	.HAlign(HAlign_Left)
+	.VAlign(VAlign_Center)
+	[
+	//	SNew(SListPanel)
+	//	.NumDesiredItems(7)
+		SNew(STextBlock)
+		.Text(FText::FromString("test"))
+		.ToolTipText(LOCTEXT("OSEF", "Click !"))
+	]*/
+		]
+	+ SScrollBox::Slot()
+		.VAlign(VAlign_Top)
+		.Padding(5)
+		[
+			WorldSettingsView
+		]
 		];
 }
 
@@ -182,11 +193,11 @@ void TabToolWorldSettings::InitDetails()
 {
 	sceneSkyLight = nullptr;
 	auto world = GEditor->GetEditorWorldContext().World();
-	
+
 	for (AActor* _actor : world->GetCurrentLevel()->Actors)
 	{
 		if (!_actor) continue;
-		
+
 		if (_actor->GetName() == FString("SkyLight_1"))
 			sceneSkyLight = Cast<ASkyLight>(_actor);
 	}
@@ -195,7 +206,7 @@ void TabToolWorldSettings::InitDetails()
 void TabToolWorldSettings::OnIntensityChanged(float NewValue)
 {
 	if (!sceneSkyLight) return;
-	
+
 	sceneSkyLight->GetLightComponent()->Intensity = NewValue;
 }
 
@@ -214,7 +225,7 @@ void TabToolWorldSettings::TestCallback(AActor* _actor)
 float TabToolWorldSettings::GetSceneLightIntensity() const
 {
 	if (!sceneSkyLight) return 0;
-	
+
 	return sceneSkyLight->GetLightComponent()->Intensity;
 }
 
