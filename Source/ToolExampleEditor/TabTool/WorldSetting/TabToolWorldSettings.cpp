@@ -1,7 +1,5 @@
 #include "TabToolWorldSettings.h"
 
-
-
 #include "DetailsViewObjectFilter.h"
 #include "UnrealEdGlobals.h"
 #include "Widgets/Layout/SScrollBox.h"
@@ -12,6 +10,7 @@
 #include "Engine/Engine.h"
 #include "PropertyEditor/Private/SDetailsView.h"
 #include "Slate/Private/Widgets/Views/SListPanel.h"
+#include "TestFilter/TestFilterUObject.h"
 
 
 class TestFilter : public FDetailsViewObjectFilter
@@ -20,11 +19,15 @@ public:
 	virtual TArray<FDetailsViewObjectRoot> FilterObjects(const TArray<UObject*>& SourceObjects) override
 	{
 		TArray<FDetailsViewObjectRoot> _toReturn = TArray<FDetailsViewObjectRoot>();
-
+		UTestFilterUObject* MyFilter = NewObject<UTestFilterUObject>();
 		FDetailsViewObjectRoot _first = FDetailsViewObjectRoot();
-		_first.Objects.Add(SourceObjects[0]);
+		USkyLightComponent* _skyLight = Cast<USkyLightComponent>(SourceObjects[0]);
 
-		_toReturn.Add(_first);
+		
+		_first.Objects.Add(MyFilter);
+
+
+		_toReturn.Add(_first.Objects[0]);
 		
 		return _toReturn;
 	}
@@ -50,9 +53,12 @@ void TabToolWorldSettings::Construct(const FArguments& _inArgs)
 	
 	InitDetails();
 	WorldSettingsView->SetObject(sceneSkyLight);
-	//TSharedPtr<TestFilter> filter = TSharedPtr<TestFilter>();
-	//filter.Get()->FilterObjects(USkyLightComponent);
-	//WorldSettingsView->SetObjectFilter(filter);
+	TSharedPtr<TestFilter> filter(new TestFilter);
+	TArray<UObject*> _testArray = TArray<UObject*>();
+
+	_testArray.Add(sceneSkyLight->GetLightComponent());
+	filter.Get()->FilterObjects(_testArray);
+	WorldSettingsView->SetObjectFilter(filter);
 	skyLightIntensity.Bind(this, &TabToolWorldSettings::GetSceneLightIntensity);
 	skyLightExist.Bind(this, &TabToolWorldSettings::GetSceneLightExist);
 	

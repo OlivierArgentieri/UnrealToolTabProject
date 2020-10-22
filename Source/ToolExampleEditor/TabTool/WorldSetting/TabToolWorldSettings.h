@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorModeRegistry.h"
+#include "Components/SkyLightComponent.h"
 #include "Templates/SharedPointer.h"
 #include "Dialogs/CustomDialog.h"
  #include "Engine/Engine.h"
