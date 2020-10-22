@@ -61,6 +61,7 @@ void TabToolWorldSettings::Construct(const FArguments& _inArgs)
 	DetailsViewArgs.bShowActorLabel = false;
 	DetailsViewArgs.ObjectFilter = filter;
 
+        
 	TSharedRef<IDetailsView> WorldSettingsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(DetailsViewArgs);
 	
 	WorldSettingsView->SetObject(sceneSkyLight);
@@ -85,86 +86,87 @@ void TabToolWorldSettings::Construct(const FArguments& _inArgs)
 		.VAlign(VAlign_Top)
 		.Padding(5)
 		[
-			SNew(SBorder)
-			.BorderBackgroundColor(FColor(192, 192, 192, 255))
-		.Padding(15.0f)
-		[
-			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().AutoWidth().FillWidth(0.5f)[SNew(STextBlock).Text(FText::FromString("Light Intensity"))]
-		+ SHorizontalBox::Slot().AutoWidth().FillWidth(0.5f)
-		[
-			SNew(SSpinBox<float>)
-			.Value(skyLightIntensity)
-		        .Tag("LightIntensity")
-		    .OnValueChanged(this, &TabToolWorldSettings::OnIntensityChanged)
-		      .MinValue(-20.0f).MaxValue(20.0f).Value(0.5f)
-		    .IsEnabled(skyLightExist)
-		]
-		]
+		        SNew(SBorder)
+		       .BorderBackgroundColor(FColor(192, 192, 192, 255))
+		       .Padding(15.0f)
+		       [
+		              SNew(SHorizontalBox)
+		             + SHorizontalBox::Slot().AutoWidth().FillWidth(0.5f)[SNew(STextBlock).Text(FText::FromString("Light Intensity"))]
+		             + SHorizontalBox::Slot().AutoWidth().FillWidth(0.5f)
+		             [
+				    SNew(SSpinBox<float>)
+				   .Value(skyLightIntensity)
+				   .Tag("LightIntensity")
+				   .OnValueChanged(this, &TabToolWorldSettings::OnIntensityChanged)
+				   .MinValue(-20.0f).MaxValue(20.0f).Value(0.5f)
+				   .IsEnabled(skyLightExist)
+		             ]
+		    ]
 		]
 		+ SScrollBox::Slot()
-			.VAlign(VAlign_Top)
-			.Padding(5)
-			[
-				SNew(SButton)
-				.OnClicked(this, &TabToolWorldSettings::HitButton)
-			[
-				SNew(STextBlock)
-				.Text(FText::FromString("test"))
-			.ToolTipText(LOCTEXT("OSEF", "Click !"))
-			]
-			]
-	+ SScrollBox::Slot()
 		.VAlign(VAlign_Top)
 		.Padding(5)
-
+		[
+			SNew(SButton)
+			.OnClicked(this, &TabToolWorldSettings::HitButton)
+			[
+				    SNew(STextBlock)
+				   .Text(FText::FromString("test"))
+			           .ToolTipText(LOCTEXT("OSEF", "Click !"))
+			]
+		]
+	        + SScrollBox::Slot()
+		.VAlign(VAlign_Top)
+		.Padding(5)
 		[
 			SNew(SBorder)
 			.BorderBackgroundColor(FColor(192, 192, 192, 255))
-		.Padding(15.0f)
+		        .Padding(15.0f)
 		[
 			SNew(SVerticalBox) // title PostProcess
-			+ SVerticalBox::Slot()[SNew(STextBlock).Text(FText::FromString("Post Process"))]
+			+ SVerticalBox::Slot()[SNew(STextBlock).Text(FText::FromString("Post Process"))
+		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		[
 			SNew(SBorder)
 			.BorderBackgroundColor(FColor(192, 192, 192, 255))
-		.Padding(15.0f)
-		[
+		        .Padding(15.0f)
+		        [
 
-			SNew(SBox)
-			//.HAlign(HAlign_Left)
-		[
-			SNew(SSplitter)
-			.MinimumSlotHeight(2)
-		.Orientation(Orient_Horizontal)
-		.PhysicalSplitterHandleSize(1)
-		.HitDetectionSplitterHandleSize(5.0f)
-		+ SSplitter::Slot().Value(0.672f)
-		[
-			SNew(STextBlock)
-			.Text(FText::FromString("test"))
-		.ToolTipText(LOCTEXT("OSEF", "Click !"))
-		]
-	+ SSplitter::Slot().Value(0.672f)
-		[
+				        SNew(SBox)
+				        //.HAlign(HAlign_Left)
+					[
+						SNew(SSplitter)
+						.MinimumSlotHeight(2)
+						.Orientation(Orient_Horizontal)
+						.PhysicalSplitterHandleSize(1)
+						.HitDetectionSplitterHandleSize(5.0f)
+						+ SSplitter::Slot().Value(0.672f)
+					        [
+					             SNew(STextBlock)
+					             .Text(FText::FromString("test"))
+					             .ToolTipText(LOCTEXT("OSEF", "Click !"))
+					        ]
+			  
+				               + SSplitter::Slot().Value(0.672f)
+	        			        [
 
-			SNew(SSpinBox<float>)
-			.Value(skyLightIntensity)
-		.Tag("LightIntensity")
-		.OnValueChanged(this, &TabToolWorldSettings::OnIntensityChanged)
-		.MinValue(0).MaxValue(50000.0f).Value(0.5f)
-		.IsEnabled(skyLightExist)
+							SNew(SSpinBox<float>)
+							.Value(skyLightIntensity)
+	        					.Tag("LightIntensity")
+	             					.OnValueChanged(this, &TabToolWorldSettings::OnIntensityChanged)
+	          					.MinValue(0).MaxValue(50000.0f).Value(0.5f)
+							.IsEnabled(skyLightExist)
+
+					        ]
+
+					]
+		         ]
 
 		]
 
-		]
-		]
-
-		]
-
-		]
+	]
 
 	/*
 	SNew(SVerticalBox)
@@ -178,14 +180,14 @@ void TabToolWorldSettings::Construct(const FArguments& _inArgs)
 		.Text(FText::FromString("test"))
 		.ToolTipText(LOCTEXT("OSEF", "Click !"))
 	]*/
-		]
-	+ SScrollBox::Slot()
+	]
+	          + SScrollBox::Slot()
 		.VAlign(VAlign_Top)
 		.Padding(5)
 		[
 			WorldSettingsView
 		]
-		];
+	];
 }
 
 
