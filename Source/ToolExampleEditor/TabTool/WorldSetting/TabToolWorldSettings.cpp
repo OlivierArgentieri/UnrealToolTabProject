@@ -1,6 +1,8 @@
 #include "TabToolWorldSettings.h"
 
 
+
+#include "DetailsViewObjectFilter.h"
 #include "UnrealEdGlobals.h"
 #include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/Input/SSpinBox.h"
@@ -11,6 +13,23 @@
 #include "PropertyEditor/Private/SDetailsView.h"
 #include "Slate/Private/Widgets/Views/SListPanel.h"
 
+
+class TestFilter : public FDetailsViewObjectFilter
+{
+public:
+	virtual TArray<FDetailsViewObjectRoot> FilterObjects(const TArray<UObject*>& SourceObjects) override
+	{
+		TArray<FDetailsViewObjectRoot> _toReturn = TArray<FDetailsViewObjectRoot>();
+
+		FDetailsViewObjectRoot _first = FDetailsViewObjectRoot();
+		_first.Objects.Add(SourceObjects[0]);
+
+		_toReturn.Add(_first);
+		
+		return _toReturn;
+	}
+	
+};
 
 #define LOCTEXT_NAMESPACE "TabToolWorldSettings"
 
@@ -25,11 +44,15 @@ void TabToolWorldSettings::Construct(const FArguments& _inArgs)
 	// setup the detail view settings
 	FDetailsViewArgs DetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
 	DetailsViewArgs.bShowActorLabel = false;
-	auto WorldSettingsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(DetailsViewArgs);
+	TSharedRef<IDetailsView> WorldSettingsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(DetailsViewArgs);
+
 
 	
 	InitDetails();
 	WorldSettingsView->SetObject(sceneSkyLight);
+	//TSharedPtr<TestFilter> filter = TSharedPtr<TestFilter>();
+	//filter.Get()->FilterObjects(USkyLightComponent);
+	//WorldSettingsView->SetObjectFilter(filter);
 	skyLightIntensity.Bind(this, &TabToolWorldSettings::GetSceneLightIntensity);
 	skyLightExist.Bind(this, &TabToolWorldSettings::GetSceneLightExist);
 	
