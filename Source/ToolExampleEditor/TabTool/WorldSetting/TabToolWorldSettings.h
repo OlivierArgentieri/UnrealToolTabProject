@@ -16,7 +16,6 @@ private:
 
 	void Construct(const FArguments& _inArgs);
 	void InitDetails();
-
 	
 	void OnIntensityChanged(float NewValue);
 
@@ -41,5 +40,10 @@ protected:
 	bool GetSceneLightExist() const;
 
 	ASkyLight* sceneSkyLight;
-};
 
+
+	// test Slist
+	//SListPanel panel;
+	/**	 */
+	FDetailsViewArgs detailsVeiwArgs;
+};

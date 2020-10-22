@@ -3,6 +3,8 @@
 #include "LevelEditor.h"
 #include "MenuTool/MenuTool.h"
 #include "TabTool/TabTool.h"
+#include "CinematicCamera/Public/CineCameraActor.h"
+#include <Editor\DetailCustomizations\Private\CameraFilmbackSettingsCustomization.cpp>
 
 IMPLEMENT_GAME_MODULE(FToolExampleEditor, ToolExampleEditor)
 
@@ -61,10 +63,14 @@ void FToolExampleEditor::StartupModule()
 		);
 	LevelEditorMenuExtensibilityManager->AddExtender(MenuExtender);
 
+
+
+	//FPropertyEditorModule& _editorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	//_editorModule.RegisterCustomPropertyTypeLayout(ACineCameraActor::StaticClass(), FOnGetDetailLayoutInstance::CreateRaw(&FCameraFilmbackSettingsCustomization::MakeInstance));
+
+
 	// call mother method
 	IExampleModuleInterface::StartupModule();
-
-	//FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("hey"));
 }
 
 void FToolExampleEditor::ShutdownModule()

@@ -21,7 +21,9 @@ public class ToolExampleEditor : ModuleRules
             "BlueprintGraph",
             "AnimGraph",
             "ComponentVisualizers",
-            "ToolExample"
+            "ToolExample",
+            "PropertyEditor",
+            "CinematicCamera"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
@@ -37,7 +39,8 @@ public class ToolExampleEditor : ModuleRules
             "MainFrame",
             "PropertyEditor",
             "ComponentVisualizers",
-            "ToolExample"
+            "ToolExample",
+            "CinematicCamera"
         });
 
         // Uncomment if you are using Slate UI
