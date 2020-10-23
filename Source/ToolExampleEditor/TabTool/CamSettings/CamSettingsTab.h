@@ -14,6 +14,7 @@ class CamSettingsTab : public SCompoundWidget, FEditorUndoClient
 private:
 	void Construct(const FArguments& _inArgs);
 	void InitDetails();
+	void InitDetailView();
 
 	void OnIntensityChanged(float NewValue);
 
