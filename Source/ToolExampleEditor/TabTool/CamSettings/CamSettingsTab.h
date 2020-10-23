@@ -1,12 +1,15 @@
 #pragma once
 #include "Engine/Engine.h"
 #include "Templates/SharedPointer.h"
+
+class ACineCameraActor;
 class CamSettingsTab : public SCompoundWidget, FEditorUndoClient
 {
 
 	SLATE_BEGIN_ARGS(CamSettingsTab) {}
 	SLATE_ARGUMENT(TWeakPtr<class TabTool>, Tool)
-    SLATE_END_ARGS()
+	SLATE_ARGUMENT(ACineCameraActor*, CineCamera)
+        SLATE_END_ARGS()
 
 private:
 	void Construct(const FArguments& _inArgs);
@@ -18,10 +21,10 @@ private:
 	virtual void PostUndo(bool bSuccess) override;
 	virtual void PostRedo(bool bSuccess) override;
 
-protected:
+	void OnActionOnActor(AActor* _actor);
+private:
 	TWeakPtr<TabTool> tool;
-	FOnClicked onClicked;
-
-	FReply HitButton();
+	ACineCameraActor* cineCamera;
+	TSharedRef<IDetailsView> detailsView;
 };
 
