@@ -10,20 +10,21 @@
 #include "Editor/UnrealEdEngine.h"
 #include "IDetailsView.h"
 #include "UnrealEdGlobals.h"
+#include "Filter/CamSettingTabFilter.h"
 
 #define LOCTEXT_NAMESPACE "CamSettingsTab"
 
 
 void CamSettingsTab::Construct(const FArguments& _inArgs)
 {
-	tool = _inArgs._Tool;
+	//tool = _inArgs._Tool;
 	
-	GEngine->OnLevelActorDeleted().AddRaw(this, &CamSettingsTab::OnActionOnActor);
-	GEngine->OnLevelActorAdded().AddRaw(this, &CamSettingsTab::OnActionOnActor);
-	GEditor->RegisterForUndo(this);
+	//GEngine->OnLevelActorDeleted().AddRaw(this, &CamSettingsTab::OnActionOnActor);
+//	GEngine->OnLevelActorAdded().AddRaw(this, &CamSettingsTab::OnActionOnActor);
+	//GEditor->RegisterForUndo(this);
 
-	InitDetails();
-	InitDetailView();
+	//InitDetails();
+	//InitDetailView();
 }
 
 void CamSettingsTab::InitDetails()
@@ -46,34 +47,39 @@ void CamSettingsTab::InitDetails()
 
 void CamSettingsTab::InitDetailView()
 {
-	FDetailsViewArgs DetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
-	DetailsViewArgs.bShowActorLabel = false;
-	//DetailsViewArgs.ObjectFilter = filter;
+	//TSharedPtr<CamSettingTabFilter> _filter(new CamSettingTabFilter);
+	FDetailsViewArgs _detailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
+	_detailsViewArgs.bShowActorLabel = false;
+	//_detailsViewArgs.ObjectFilter = _filter;
 
 
-	detailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(DetailsViewArgs);
+	detailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(_detailsViewArgs);
 
 	detailsView->SetObject(cineCamera);
+	detailsView->HideFilterArea(true);
 
 	ChildSlot
-		[
-			detailsView
-		];
+	[
+		detailsView
+	];
 }
 
 void CamSettingsTab::PostUndo(bool bSuccess)
 {
 	InitDetails();
+	InitDetailView();
 }
 
 void CamSettingsTab::PostRedo(bool bSuccess)
 {
 	InitDetails();
+	InitDetailView();
 }
 
 
 void CamSettingsTab::OnActionOnActor(AActor* _actor)
 {
 	InitDetails();
+	InitDetailView();
 }
 #undef LOCTEXT_NAMESPACE

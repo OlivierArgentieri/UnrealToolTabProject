@@ -6,17 +6,17 @@ class ACineCameraActor;
 class CamSettingsTab : public SCompoundWidget, FEditorUndoClient
 {
 
+private:
 	SLATE_BEGIN_ARGS(CamSettingsTab) {}
 	SLATE_ARGUMENT(TWeakPtr<class TabTool>, Tool)
 	SLATE_ARGUMENT(ACineCameraActor*, CineCamera)
-        SLATE_END_ARGS()
+	SLATE_END_ARGS()
 
 private:
 	void Construct(const FArguments& _inArgs);
 	void InitDetails();
 	void InitDetailView();
 
-	void OnIntensityChanged(float NewValue);
 
 	// for undo / redo
 	virtual void PostUndo(bool bSuccess) override;
