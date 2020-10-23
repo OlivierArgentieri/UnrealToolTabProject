@@ -23,19 +23,22 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 	GEngine->OnLevelActorAdded().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	GEditor->RegisterForUndo(this);
 
+	TSharedPtr<CamSettingTabFilter> _filter(new CamSettingTabFilter);
+	detailsViewArgs = FDetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
+	detailsViewArgs.bShowActorLabel = false;
+	detailsViewArgs.ObjectFilter = _filter;
+
+
 	InitDetails();
 	InitDetailView();
+	
+	detailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(detailsViewArgs);
 
-
-	auto detailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(_detailsViewArgs);
-
-	detailsView->SetObject(cineCamera);
 	detailsView->HideFilterArea(true);
-	detailsView->SetEnabled(cineCamera);
 	ChildSlot
-		[
-			detailsView
-		];
+	[
+		detailsView.ToSharedRef()
+	];
 }
 
 void CamSettingsTab::InitDetails()
@@ -48,24 +51,22 @@ void CamSettingsTab::InitDetails()
 	{
 		if (!_actor) continue;
 
-
-		if(_actor->GetName() == FString("CineCameraActor_1"))
-			cineCamera = Cast<ACineCameraActor>(_actor);
-
-		if (cineCamera) // get first
-		return;
+		cineCamera = Cast<ACineCameraActor>(_actor);
+		if(cineCamera != nullptr)
+			return;
 	}
+
 }
 
 
 void CamSettingsTab::InitDetailView()
 {
-	TSharedPtr<CamSettingTabFilter> _filter(new CamSettingTabFilter);
-	_detailsViewArgs = FDetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
-	_detailsViewArgs.bShowActorLabel = false;
-	_detailsViewArgs.ObjectFilter = _filter;
+	if (!detailsView) return;
+	detailsView->SetEnabled(false);
 
-
+	if (!cineCamera) return;
+	detailsView->SetObject(cineCamera);
+	detailsView->SetEnabled(true);
 }
 
 void CamSettingsTab::PostUndo(bool bSuccess)

@@ -12,7 +12,7 @@ private:
 	SLATE_BEGIN_ARGS(CamSettingsTab) {}
 	SLATE_ARGUMENT(TWeakPtr<class TabTool>, Tool)
 	SLATE_ARGUMENT(ACineCameraActor*, CineCamera)
-	//SLATE_ARGUMENT(TSharedRef<IDetailsView>, DetailsView)
+	SLATE_ARGUMENT(TSharedPtr<IDetailsView>, DetailsView)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& _inArgs);
@@ -31,7 +31,7 @@ protected:
 	TWeakPtr<TabTool> tool;
 	ACineCameraActor* cineCamera;
 
-	FDetailsViewArgs _detailsViewArgs;
-	//TSharedRef<IDetailsView> detailsView;
+	FDetailsViewArgs detailsViewArgs;
+	TSharedPtr<IDetailsView> detailsView;
 };
 
