@@ -6,7 +6,6 @@
 
 TArray<FDetailsViewObjectRoot> CamSettingTabFilter::FilterObjects(const TArray<UObject*>& _sourceObjects)
 {
-	
 	TArray<FDetailsViewObjectRoot> _toReturn = TArray<FDetailsViewObjectRoot>();
 
 	UCamSettingTabFilterObject* _myFilter = NewObject<UCamSettingTabFilterObject>();

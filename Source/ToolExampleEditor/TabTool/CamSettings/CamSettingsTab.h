@@ -1,6 +1,8 @@
 #pragma once
-#include "Engine/Engine.h"
+#include "EditorModeRegistry.h"
 #include "Templates/SharedPointer.h"
+#include "Dialogs/CustomDialog.h"
+#include "Engine/Engine.h"
 
 class ACineCameraActor;
 class CamSettingsTab : public SCompoundWidget, FEditorUndoClient
@@ -10,10 +12,12 @@ private:
 	SLATE_BEGIN_ARGS(CamSettingsTab) {}
 	SLATE_ARGUMENT(TWeakPtr<class TabTool>, Tool)
 	SLATE_ARGUMENT(ACineCameraActor*, CineCamera)
+	//SLATE_ARGUMENT(TSharedRef<IDetailsView>, DetailsView)
 	SLATE_END_ARGS()
 
-private:
 	void Construct(const FArguments& _inArgs);
+private:
+	
 	void InitDetails();
 	void InitDetailView();
 
@@ -23,9 +27,11 @@ private:
 	virtual void PostRedo(bool bSuccess) override;
 
 	void OnActionOnActor(AActor* _actor);
-private:
+protected:
 	TWeakPtr<TabTool> tool;
 	ACineCameraActor* cineCamera;
-	TSharedRef<IDetailsView> detailsView;
+
+	FDetailsViewArgs _detailsViewArgs;
+	//TSharedRef<IDetailsView> detailsView;
 };
 
