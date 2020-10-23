@@ -1,5 +1,6 @@
 #include "TabTool.h"
 #include "./WorldSetting/TabToolWorldSettings.h"
+#include "./CamSettings/CamSettingsTab.h"
 
 
 void TabTool::OnStartupModule()
@@ -26,7 +27,7 @@ TSharedRef<SDockTab> TabTool::SpawnTab(const FSpawnTabArgs& _tabSpawnArgs)
 	TSharedRef<SDockTab> _spawnedTab = SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
 		[
-			SNew(TabToolWorldSettings)
+			SNew(CamSettingsTab)
 			.Tool(SharedThis(this))
 		];
 	
