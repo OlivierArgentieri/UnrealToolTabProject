@@ -20,8 +20,8 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 {
 	tool = _inArgs._Tool;
 
-	GEngine->OnLevelActorDeleted().AddRaw(this, &CamSettingsTab::OnActionOnActor);
-	GEngine->OnLevelActorAdded().AddRaw(this, &CamSettingsTab::OnActionOnActor);
+	actorDeletedDelegate = GEngine->OnLevelActorDeleted().AddRaw(this, &CamSettingsTab::OnActionOnActor);
+	actorAddedDelegate = GEngine->OnLevelActorAdded().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	GEditor->RegisterForUndo(this);
 	cameraObjectName.Bind(this, &CamSettingsTab::GetCameraObjectName);
 	
@@ -32,10 +32,7 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 	
 	InitDetails();
 	InitDetailView();
-	
-	detailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(detailsViewArgs);
 
-	detailsView->HideFilterArea(true);
 	
 	ChildSlot
 	[
@@ -47,6 +44,12 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 		]
 		
 	];
+}
+
+CamSettingsTab::~CamSettingsTab()
+{
+	GEngine->OnLevelActorDeleted().Remove(actorDeletedDelegate);
+	GEngine->OnLevelActorAdded().Remove(actorAddedDelegate);
 }
 
 void CamSettingsTab::InitDetails()
@@ -69,12 +72,17 @@ void CamSettingsTab::InitDetails()
 
 void CamSettingsTab::InitDetailView()
 {
-	if (!detailsView) return;
-	detailsView->SetEnabled(false);
+	if (!detailsView)
+	{
+		detailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(detailsViewArgs);
+		detailsView->HideFilterArea(true);
+		
+	}
 
+	detailsView->SetEnabled(cineCamera);
 	if (!cineCamera) return;
 	detailsView->SetObject(cineCamera);
-	detailsView->SetEnabled(true);
+	//detailsView->SetEnabled(true);
 }
 
 void CamSettingsTab::PostUndo(bool bSuccess)

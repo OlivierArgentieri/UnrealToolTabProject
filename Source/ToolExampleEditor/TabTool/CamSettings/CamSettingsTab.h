@@ -16,6 +16,7 @@ private:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& _inArgs);
+	~CamSettingsTab();
 private:
 	
 	void InitDetails();
@@ -28,6 +29,10 @@ private:
 
 	void OnActionOnActor(AActor* _actor);
 
+	// store delegate to delete
+	FDelegateHandle actorAddedDelegate;
+	FDelegateHandle actorDeletedDelegate;
+	
 	TAttribute<FText> cameraObjectName;
 	FText GetCameraObjectName() const;
 protected:
