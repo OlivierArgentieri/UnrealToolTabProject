@@ -11,6 +11,7 @@
 #include "IDetailsView.h"
 #include "UnrealEdGlobals.h"
 #include "Filter/CamSettingTabFilter.h"
+#include "Widgets/Layout/SScrollBox.h"
 
 #define LOCTEXT_NAMESPACE "CamSettingsTab"
 
@@ -22,22 +23,29 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 	GEngine->OnLevelActorDeleted().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	GEngine->OnLevelActorAdded().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	GEditor->RegisterForUndo(this);
-
+	cameraObjectName.Bind(this, &CamSettingsTab::GetCameraObjectName);
+	
 	TSharedPtr<CamSettingTabFilter> _filter(new CamSettingTabFilter);
 	detailsViewArgs = FDetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
 	detailsViewArgs.bShowActorLabel = false;
 	detailsViewArgs.ObjectFilter = _filter;
-
-
+	
 	InitDetails();
 	InitDetailView();
 	
 	detailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(detailsViewArgs);
 
 	detailsView->HideFilterArea(true);
+	
 	ChildSlot
 	[
-		detailsView.ToSharedRef()
+		SNew(SVerticalBox)
+		+ SVerticalBox::Slot().AutoHeight().FillHeight(0.162f)[SNew(STextBlock).Text(cameraObjectName)]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			detailsView.ToSharedRef()
+		]
+		
 	];
 }
 
@@ -86,5 +94,14 @@ void CamSettingsTab::OnActionOnActor(AActor* _actor)
 {
 	InitDetails();
 	InitDetailView();
+}
+
+FText CamSettingsTab::GetCameraObjectName() const
+{
+
+	if (cineCamera)
+		return FText::AsCultureInvariant(cineCamera->GetName());
+	return FText::FromString("No Camera found");
+	
 }
 #undef LOCTEXT_NAMESPACE

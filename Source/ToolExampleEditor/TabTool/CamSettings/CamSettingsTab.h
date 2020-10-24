@@ -27,6 +27,9 @@ private:
 	virtual void PostRedo(bool bSuccess) override;
 
 	void OnActionOnActor(AActor* _actor);
+
+	TAttribute<FText> cameraObjectName;
+	FText GetCameraObjectName() const;
 protected:
 	TWeakPtr<TabTool> tool;
 	ACineCameraActor* cineCamera;
