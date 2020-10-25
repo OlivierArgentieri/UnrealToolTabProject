@@ -14,13 +14,8 @@ class TOOLEXAMPLEEDITOR_API UCamSettingTabFilterObject : public UObject
 
 
 public:
-	/** Controls the camera's lens. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Current Camera Settings")
-	FCameraLensSettings LensSettings;
-
-	/** Controls the camera's focus. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Current Camera Settings")
-	FCameraFocusSettings FocusSettings;
-
+	/** Post process settings to use for this camera. Don't forget to check the properties you want to override */
+	UPROPERTY(Interp, BlueprintReadWrite, Category = PostProcess, meta = (ShowOnlyInnerProperties))
+	struct FPostProcessSettings PostProcessSettings;
 
 };

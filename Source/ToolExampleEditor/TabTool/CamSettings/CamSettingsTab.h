@@ -3,9 +3,11 @@
 #include "Templates/SharedPointer.h"
 #include "Dialogs/CustomDialog.h"
 #include "Engine/Engine.h"
+#include "Hook/CamSettingHook.h"
+#include <ToolExampleEditor\TabTool\CamSettings\Hook\CamSettingHook.h>
 
 class ACineCameraActor;
-class CamSettingsTab : public SCompoundWidget, FEditorUndoClient
+class CamSettingsTab : public SCompoundWidget, FEditorUndoClient, FNotifyHook
 {
 
 private:
@@ -17,6 +19,7 @@ private:
 
 	void Construct(const FArguments& _inArgs);
 	~CamSettingsTab();
+	
 private:
 	
 	void InitDetails();
@@ -35,6 +38,9 @@ private:
 	
 	TAttribute<FText> cameraObjectName;
 	FText GetCameraObjectName() const;
+
+	virtual void NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, FProperty* PropertyThatChanged) override;
+	
 protected:
 	TWeakPtr<TabTool> tool;
 	ACineCameraActor* cineCamera;
@@ -42,4 +48,3 @@ protected:
 	FDetailsViewArgs detailsViewArgs;
 	TSharedPtr<IDetailsView> detailsView;
 };
-

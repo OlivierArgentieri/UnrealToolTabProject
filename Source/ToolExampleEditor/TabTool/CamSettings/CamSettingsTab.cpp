@@ -10,9 +10,11 @@
 #include "Editor/UnrealEdEngine.h"
 #include "IDetailsView.h"
 #include "UnrealEdGlobals.h"
+#include "Camera/CameraComponent.h"
 #include "Filter/CamSettingTabFilter.h"
+#include "Filter/CamSettingTabFilterObject.h"
 #include "Widgets/Layout/SScrollBox.h"
-
+#include "UObject/UObjectBase.h"
 #define LOCTEXT_NAMESPACE "CamSettingsTab"
 
 
@@ -23,26 +25,24 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 	actorDeletedDelegate = GEngine->OnLevelActorDeleted().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	actorAddedDelegate = GEngine->OnLevelActorAdded().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	GEditor->RegisterForUndo(this);
+	
 	cameraObjectName.Bind(this, &CamSettingsTab::GetCameraObjectName);
 	
 	TSharedPtr<CamSettingTabFilter> _filter(new CamSettingTabFilter);
 	detailsViewArgs = FDetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
+	//detailsViewArgs.NotifyHook
 	detailsViewArgs.bShowActorLabel = false;
 	detailsViewArgs.ObjectFilter = _filter;
+	detailsViewArgs.NotifyHook = this;
+
 	
 	InitDetails();
 	InitDetailView();
-
-	
+	detailsView.Get()->SetObjectFilter(_filter);
 	ChildSlot
 	[
-		SNew(SVerticalBox)
-		+ SVerticalBox::Slot().AutoHeight().FillHeight(0.162f)[SNew(STextBlock).Text(cameraObjectName)]
-		+ SVerticalBox::Slot().AutoHeight()
-		[
-			detailsView.ToSharedRef()
-		]
-		
+		detailsView.ToSharedRef()
+
 	];
 }
 
@@ -81,7 +81,8 @@ void CamSettingsTab::InitDetailView()
 
 	detailsView->SetEnabled(cineCamera);
 	if (!cineCamera) return;
-	detailsView->SetObject(cineCamera);
+	detailsView->SetObject(cineCamera, true);
+	
 	//detailsView->SetEnabled(true);
 }
 
@@ -111,5 +112,63 @@ FText CamSettingsTab::GetCameraObjectName() const
 		return FText::AsCultureInvariant(cineCamera->GetName());
 	return FText::FromString("No Camera found");
 	
+}
+
+void CamSettingsTab::NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, FProperty* PropertyThatChanged)
+{
+	if (!cineCamera || !PropertyThatChanged) return;
+
+	FProperty* test = cineCamera->GetCameraComponent()->GetClass()->FindPropertyByName("PostProcessSettings");
+
+	if(test)
+	{
+		void* addr = test->ContainerPtrToValuePtr<void>(cineCamera->GetCameraComponent());
+		//void* Myaddr = PropertyThatChanged->ContainerPtrToValuePtr<void>(cineCamera->GetCameraComponent());
+
+		if(UStructProperty* structProp = Cast<UStructProperty>(test))
+		{
+			UScriptStruct* scriptStruct = structProp->Struct;
+
+
+			
+			FProperty* boolChildProp = scriptStruct->FindPropertyByName("bOverride_BloomIntensity");
+			if (UBoolProperty* childBoolProp = Cast<UBoolProperty>(boolChildProp))
+			{
+				childBoolProp->SetPropertyValue(addr, true);
+			}
+			
+			FProperty* childProp = scriptStruct->FindPropertyByName("BloomIntensity");
+
+			if(UFloatProperty* childFloatProp = Cast<UFloatProperty>(childProp))
+			{
+				float oldValue = childFloatProp->GetFloatingPointPropertyValue(addr);
+
+				//(UFloatProperty * childMyProperty = Cast<UFloatProperty>(childProp)
+				float my_newValue = childFloatProp->GetFloatingPointPropertyValue(addr);
+
+				childFloatProp->SetFloatingPointPropertyValue(addr, 8);
+
+				
+			}
+			
+			
+		}
+	}
+	
+	/*PropertyThatChanged->GetClass()->
+	for (TFieldIterator<FProperty> PropIt(PropertyThatChanged->Owner.GetOwnerClass()); PropIt; ++PropIt)
+	{
+		if(PropIt->IsA(UFloatProperty::StaticClass()))
+		{
+			UFloatProperty* t = CastChecked<UFloatProperty>(PropertyThatChanged);
+			test = t->GetFloatingPointPropertyValue(t->ContainerPtrToValuePtr<float>(PropertyThatChanged));
+
+			auto sss = t;
+		}
+	}*/
+	//PropertyChangedEvent.MemberProperty.
+	//auto c = Cast<UCamSettingTabFilterObject>(f);
+	//if(PropertyThatChanged->GetNameCPP() == "BloomIntensity")
+	//	cineCamera->GetCameraComponent()->PostProcessSettings.BloomIntensity = *Cast<float>(PropertyChangedEvent.MemberProperty);
 }
 #undef LOCTEXT_NAMESPACE
