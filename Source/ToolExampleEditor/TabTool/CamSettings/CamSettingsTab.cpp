@@ -21,7 +21,9 @@
 void CamSettingsTab::Construct(const FArguments& _inArgs)
 {
 	tool = _inArgs._Tool;
+	wrapper = NewObject<UCamSettingTabFilterObject>();
 
+	actorDeletedDelegate = GEngine->OnLevelActorDeleted().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	actorDeletedDelegate = GEngine->OnLevelActorDeleted().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	actorAddedDelegate = GEngine->OnLevelActorAdded().AddRaw(this, &CamSettingsTab::OnActionOnActor);
 	GEditor->RegisterForUndo(this);
@@ -118,57 +120,23 @@ void CamSettingsTab::NotifyPostChange(const FPropertyChangedEvent& PropertyChang
 {
 	if (!cineCamera || !PropertyThatChanged) return;
 
-	FProperty* test = cineCamera->GetCameraComponent()->GetClass()->FindPropertyByName("PostProcessSettings");
-
-	if(test)
+	if(PropertyChangedEvent.Property && PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UCameraComponent, PostProcessSettings))
 	{
-		void* addr = test->ContainerPtrToValuePtr<void>(cineCamera->GetCameraComponent());
-		//void* Myaddr = PropertyThatChanged->ContainerPtrToValuePtr<void>(cineCamera->GetCameraComponent());
+		
+		void* _structAddr = PropertyChangedEvent.MemberProperty->ContainerPtrToValuePtr<void>(wrapper);
 
-		if(UStructProperty* structProp = Cast<UStructProperty>(test))
+		FStructProperty* _postprocessProperty = Cast<FStructProperty>(PropertyThatChanged->GetOwnerProperty());
+
+		if (_postprocessProperty)
 		{
-			UScriptStruct* scriptStruct = structProp->Struct;
-
-
-			
-			FProperty* boolChildProp = scriptStruct->FindPropertyByName("bOverride_BloomIntensity");
-			if (UBoolProperty* childBoolProp = Cast<UBoolProperty>(boolChildProp))
+			UScriptStruct* _postProcessStruct = _postprocessProperty->Struct;
+			FBoolProperty* _b_bloomIntensityProperty = Cast<FBoolProperty>(_postProcessStruct->FindPropertyByName(GET_MEMBER_NAME_CHECKED(FPostProcessSettings, bOverride_BloomIntensity)));
+			if (_b_bloomIntensityProperty)
 			{
-				childBoolProp->SetPropertyValue(addr, true);
+				_b_bloomIntensityProperty->SetPropertyValue(_structAddr, true);
 			}
-			
-			FProperty* childProp = scriptStruct->FindPropertyByName("BloomIntensity");
-
-			if(UFloatProperty* childFloatProp = Cast<UFloatProperty>(childProp))
-			{
-				float oldValue = childFloatProp->GetFloatingPointPropertyValue(addr);
-
-				//(UFloatProperty * childMyProperty = Cast<UFloatProperty>(childProp)
-				float my_newValue = childFloatProp->GetFloatingPointPropertyValue(addr);
-
-				childFloatProp->SetFloatingPointPropertyValue(addr, 8);
-
-				
-			}
-			
-			
 		}
 	}
 	
-	/*PropertyThatChanged->GetClass()->
-	for (TFieldIterator<FProperty> PropIt(PropertyThatChanged->Owner.GetOwnerClass()); PropIt; ++PropIt)
-	{
-		if(PropIt->IsA(UFloatProperty::StaticClass()))
-		{
-			UFloatProperty* t = CastChecked<UFloatProperty>(PropertyThatChanged);
-			test = t->GetFloatingPointPropertyValue(t->ContainerPtrToValuePtr<float>(PropertyThatChanged));
-
-			auto sss = t;
-		}
-	}*/
-	//PropertyChangedEvent.MemberProperty.
-	//auto c = Cast<UCamSettingTabFilterObject>(f);
-	//if(PropertyThatChanged->GetNameCPP() == "BloomIntensity")
-	//	cineCamera->GetCameraComponent()->PostProcessSettings.BloomIntensity = *Cast<float>(PropertyChangedEvent.MemberProperty);
 }
 #undef LOCTEXT_NAMESPACE
