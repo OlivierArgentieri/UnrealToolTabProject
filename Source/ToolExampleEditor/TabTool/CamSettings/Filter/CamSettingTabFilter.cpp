@@ -4,10 +4,15 @@
 #include "CineCameraActor.h"
 
 
+void CamSettingTabFilter::SetWrapper(UCamSettingTabFilterObject* _wrapper)
+{
+	wrapper = _wrapper;
+}
+
 TArray<FDetailsViewObjectRoot> CamSettingTabFilter::FilterObjects(const TArray<UObject*>& _sourceObjects)
 {
 	TArray<FDetailsViewObjectRoot> _toReturn = TArray<FDetailsViewObjectRoot>();
-	UCamSettingTabFilterObject* _myFilter = NewObject<UCamSettingTabFilterObject>();
+	//UCamSettingTabFilterObject* _myFilter = NewObject<UCamSettingTabFilterObject>();
 	
 	if (_sourceObjects.Num() != 1)return _toReturn;
 
@@ -23,7 +28,7 @@ TArray<FDetailsViewObjectRoot> CamSettingTabFilter::FilterObjects(const TArray<U
 
 	
 	FDetailsViewObjectRoot _rootObjectDetail = FDetailsViewObjectRoot();
-	_rootObjectDetail.Objects.Add(_myFilter);
+	_rootObjectDetail.Objects.Add(wrapper);
 	_toReturn.Add(_rootObjectDetail);
 
 	
