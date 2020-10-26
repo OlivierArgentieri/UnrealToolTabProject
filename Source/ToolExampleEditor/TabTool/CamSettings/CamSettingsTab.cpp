@@ -123,28 +123,57 @@ void CamSettingsTab::NotifyPostChange(const FPropertyChangedEvent& PropertyChang
 	/**/
 	if(PropertyChangedEvent.Property && PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UCameraComponent, PostProcessSettings))
 	{
-		//FProperty* _postProcessProperty = cineCamera->GetCameraComponent()->GetClass()->FindPropertyByName("PostProcessSettings");
-		//void* _postProcessStructAddr = _postProcessProperty->ContainerPtrToValuePtr<void>(cineCamera->GetCameraComponent());
+		FProperty* _postProcessProperty = cineCamera->GetCameraComponent()->GetClass()->FindPropertyByName("PostProcessSettings");
+		void* _postProcessStructAddr = _postProcessProperty->ContainerPtrToValuePtr<void>(cineCamera->GetCameraComponent());
 
 
 		void* _wrapperStructAddr = PropertyChangedEvent.MemberProperty->ContainerPtrToValuePtr<void>(wrapper);
 
 		FStructProperty* _postProcessPropertyWrapper = Cast<FStructProperty>(PropertyChangedEvent.MemberProperty);
-		//FStructProperty* _postprocessPropertyCamera = Cast<FStructProperty>(_postProcessProperty);
+		FStructProperty* _postprocessPropertyCamera = Cast<FStructProperty>(_postProcessProperty);
 
-		if (_postProcessPropertyWrapper)
+		if (_postProcessPropertyWrapper && _postprocessPropertyCamera)
 		{
-			UScriptStruct* _postProcessStruct = _postProcessPropertyWrapper->Struct;
-			FBoolProperty* _b_bloomIntensityProperty = Cast<FBoolProperty>(_postProcessStruct->FindPropertyByName(GET_MEMBER_NAME_CHECKED(FPostProcessSettings, bOverride_BloomIntensity)));
-			if (_b_bloomIntensityProperty)
+			UScriptStruct* _postProcessStructWrapper = _postProcessPropertyWrapper->Struct;
+			UScriptStruct* _postProcessStructCamera = _postprocessPropertyCamera->Struct;
+
+
+			// force Activation of property
+			FBoolProperty* _bOverride_PropertyWrapper = Cast<FBoolProperty>(_postProcessStructWrapper->FindPropertyByName(FName("bOverride_" + PropertyThatChanged->GetName())));
+			FBoolProperty* _bOverride_PropertyCamera = Cast<FBoolProperty>(_postProcessStructCamera->FindPropertyByName(FName("bOverride_" + PropertyThatChanged->GetName())));
+			if (_bOverride_PropertyWrapper && _bOverride_PropertyCamera)
 			{
-				bool _editedValue = _b_bloomIntensityProperty->GetPropertyValue_InContainer(_wrapperStructAddr);
-				
-						      
+				bool _propertyIsActivated = _bOverride_PropertyCamera->GetPropertyValue_InContainer(_postProcessStructAddr);
+				bool _editedValue = _bOverride_PropertyWrapper->GetPropertyValue_InContainer(_wrapperStructAddr);
+
+			    if(_propertyIsActivated != _editedValue) 
+			    {
+				_bOverride_PropertyCamera->SetPropertyValue_InContainer(_postProcessStructAddr, _editedValue);
+			        return;
+			    }
+			}
+
+			FBoolProperty* _b_PropertyWrapper = Cast<FBoolProperty>(_postProcessStructWrapper->FindPropertyByName(PropertyThatChanged->GetFName()));
+			FBoolProperty* _b_PropertyCamera = Cast<FBoolProperty>(_postProcessStructCamera->FindPropertyByName(PropertyThatChanged->GetFName()));
+			if (_b_PropertyWrapper && _b_PropertyCamera)
+			{
+				bool _editedValue = _b_PropertyWrapper->GetPropertyValue_InContainer(_wrapperStructAddr);
+				_b_PropertyCamera->SetPropertyValue_InContainer(_postProcessStructAddr, _editedValue);
+				return;
+			}
+
+			FFloatProperty* _f_PropertyWrapper = Cast<FFloatProperty>(_postProcessStructWrapper->FindPropertyByName(PropertyThatChanged->GetFName()));
+			FFloatProperty* _f_PropertyCamera = Cast<FFloatProperty>(_postProcessStructCamera->FindPropertyByName(PropertyThatChanged->GetFName()));
+			if (_f_PropertyWrapper && _f_PropertyCamera)
+			{
+				float _editedValue = _f_PropertyWrapper->GetPropertyValue_InContainer(_wrapperStructAddr);
+				_f_PropertyCamera->SetPropertyValue_InContainer(_postProcessStructAddr, _editedValue);
+				return;
 			}
 		}
 	}
 
+  /*
 	if (PropertyChangedEvent.Property && PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UCameraComponent, PostProcessSettings))
 	{
 		FProperty* _postProcessProperty = cineCamera->GetCameraComponent()->GetClass()->FindPropertyByName("PostProcessSettings");
@@ -165,7 +194,7 @@ void CamSettingsTab::NotifyPostChange(const FPropertyChangedEvent& PropertyChang
 				return;
 			}
 		}
-	}
+	}*/
 
 
 
