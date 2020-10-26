@@ -118,12 +118,14 @@ FText CamSettingsTab::GetCameraObjectName() const
 
 void CamSettingsTab::NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, FProperty* PropertyThatChanged)
 {
-	if (!cineCamera || !PropertyThatChanged) return;
 
+	if (!cineCamera || !PropertyThatChanged) return;
+	/*
 	if(PropertyChangedEvent.Property && PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UCameraComponent, PostProcessSettings))
 	{
-		
-		void* _structAddr = PropertyChangedEvent.MemberProperty->ContainerPtrToValuePtr<void>(wrapper);
+		UObject* _container = PropertyChangedEvent.MemberProperty->Owner.ToUObject();
+		UCamSettingTabFilterObject* _wrapper = Cast<UCamSettingTabFilterObject>(_container);
+		const void* _structAddr = PropertyChangedEvent.MemberProperty->ContainerPtrToValuePtr<void>(_wrapper);
 
 		FStructProperty* _postprocessProperty = Cast<FStructProperty>(PropertyThatChanged->GetOwnerProperty());
 
@@ -133,10 +135,13 @@ void CamSettingsTab::NotifyPostChange(const FPropertyChangedEvent& PropertyChang
 			FBoolProperty* _b_bloomIntensityProperty = Cast<FBoolProperty>(_postProcessStruct->FindPropertyByName(GET_MEMBER_NAME_CHECKED(FPostProcessSettings, bOverride_BloomIntensity)));
 			if (_b_bloomIntensityProperty)
 			{
-				_b_bloomIntensityProperty->SetPropertyValue(_structAddr, true);
+				bool _test = _b_bloomIntensityProperty->GetPropertyValue(_structAddr);
+
+				bool _second = _test; // for beakpoint 
+			//	_b_bloomIntensityProperty->SetPropertyValue(_structAddr, true);
 			}
 		}
-	}
+	}*/
 	
 }
 #undef LOCTEXT_NAMESPACE
