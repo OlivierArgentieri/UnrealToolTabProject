@@ -20,7 +20,7 @@ private:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& _inArgs);
-	FReply OnPress() const;
+	FReply OnPress();
 	~CamSettingsTab();
 	
 private:
