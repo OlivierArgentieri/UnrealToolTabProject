@@ -15,6 +15,8 @@
 #include "Filter/CamSettingTabFilterObject.h"
 #include "Widgets/Layout/SScrollBox.h"
 #include "UObject/UObjectBase.h"
+
+#include "DetailLayoutBuilder.h"
 #define LOCTEXT_NAMESPACE "CamSettingsTab"
 
 
@@ -38,14 +40,44 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 	detailsViewArgs.ObjectFilter = _filter;
 	detailsViewArgs.NotifyHook = this;
 
+	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	PropertyEditorModule.NotifyCustomizationModuleChanged();
+
+	
+	
 	
 	InitDetails();
 	InitDetailView();
 	detailsView.Get()->SetObjectFilter(_filter);
 	ChildSlot
 	[
-		detailsView.ToSharedRef()
+		SNew(SScrollBox)
+		+ SScrollBox::Slot()
+		.VAlign(VAlign_Top)
+		.Padding(5)
+		[
+			SNew(SButton)
+			.OnClicked(this, &CamSettingsTab::OnPress)
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString("test"))
+				.ToolTipText(LOCTEXT("test refresh", "Click !"))
+			]
+		]
+		+ SScrollBox::Slot()
+		.VAlign(VAlign_Top)
+		.Padding(5)[
+
+			detailsView.ToSharedRef()
+		]
 	];
+}
+
+
+FReply CamSettingsTab::OnPress()
+{
+	// detailsView-> see : https://answers.unrealengine.com/questions/265765/how-to-update-customized-details-panel.html
+	return FReply::Handled();
 }
 
 CamSettingsTab::~CamSettingsTab()
@@ -68,7 +100,6 @@ void CamSettingsTab::InitDetails()
 		if(cineCamera != nullptr)
 			return;
 	}
-
 }
 
 

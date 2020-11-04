@@ -20,6 +20,7 @@ private:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& _inArgs);
+	FReply OnPress() const;
 	~CamSettingsTab();
 	
 private:
@@ -43,6 +44,7 @@ private:
 
 	virtual void NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, FProperty* PropertyThatChanged) override;
 	UCamSettingTabFilterObject* wrapper;
+	
 protected:
 	TWeakPtr<TabTool> tool;
 	ACineCameraActor* cineCamera;
