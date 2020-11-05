@@ -15,7 +15,7 @@
 #include "Filter/CamSettingTabFilterObject.h"
 #include "Widgets/Layout/SScrollBox.h"
 #include "UObject/UObjectBase.h"
-
+#include "IPropertyChangeListener.h"
 #include "DetailLayoutBuilder.h"
 #define LOCTEXT_NAMESPACE "CamSettingsTab"
 
@@ -34,7 +34,7 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 	
 	TSharedPtr<CamSettingTabFilter> _filter(new CamSettingTabFilter);
 	_filter->SetWrapper(wrapper);
-	detailsViewArgs = FDetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
+	detailsViewArgs = FDetailsViewArgs(true, false, true, FDetailsViewArgs::HideNameArea, false, GUnrealEd);
 	//detailsViewArgs.NotifyHook
 	detailsViewArgs.bShowActorLabel = false;
 	detailsViewArgs.ObjectFilter = _filter;
@@ -76,7 +76,21 @@ void CamSettingsTab::Construct(const FArguments& _inArgs)
 
 FReply CamSettingsTab::OnPress()
 {
+	FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor").NotifyCustomizationModuleChanged();
 	// detailsView-> see : https://answers.unrealengine.com/questions/265765/how-to-update-customized-details-panel.html
+	//detailsView.ad
+	InitDetails();
+	InitDetailView();
+	//FProperty* _postProcessProperty = cineCamera->GetCameraComponent()->GetClass()->FindPropertyByName("PostProcessSettings");
+	//void* _postProcessStructAddr = _postProcessProperty->ContainerPtrToValuePtr<void>(cineCamera->GetCameraComponent());
+	//void* _wrapperStructAddr = _postProcessProperty->ContainerPtrToValuePtr<void>(wrapper);
+
+	//FStructProperty* _postprocessPropertyCamera = Cast<FStructProperty>(_postProcessProperty);
+	//FStructProperty* _postprocessPropertyWrapper = Cast<FStructProperty>(_wrapperStructAddr);
+	//
+	//UScriptStruct* _postProcessStructWrapper = _postprocessPropertyWrapper->Struct;
+	//UScriptStruct* _postProcessStructCamera = _postprocessPropertyCamera->Struct;
+	UE_LOG(LogTemp, Warning, TEXT("Hey"));
 	return FReply::Handled();
 }
 
@@ -108,8 +122,10 @@ void CamSettingsTab::InitDetailView()
 	if (!detailsView)
 	{
 		detailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(detailsViewArgs);
-		detailsView->HideFilterArea(true);
-		
+		changedListener = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreatePropertyChangeListener();
+		changedListener->GetOnPropertyChangedDelegate().AddRaw(this, &CamSettingsTab::OnEditPropertyMainDetailsView);
+		//detailsView->HideFilterArea(true);
+		//detailsView->
 	}
 
 	detailsView->SetEnabled(cineCamera);
@@ -229,6 +245,14 @@ void CamSettingsTab::NotifyPostChange(const FPropertyChangedEvent& PropertyChang
 
 
 
+	
+}
+
+void CamSettingsTab::OnEditPropertyMainDetailsView(const TArray<UObject*>& _object, const class IPropertyHandle& _handleProperty)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Hey"));
+
+	
 	
 }
 #undef LOCTEXT_NAMESPACE

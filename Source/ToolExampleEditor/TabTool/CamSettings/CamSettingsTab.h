@@ -8,6 +8,7 @@
 
 class UCamSettingTabFilterObject;
 class ACineCameraActor;
+class IPropertyChangeListener;
 class CamSettingsTab : public SCompoundWidget, FEditorUndoClient, FNotifyHook
 {
 
@@ -43,6 +44,7 @@ private:
 	FText GetCameraObjectName() const;
 
 	virtual void NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, FProperty* PropertyThatChanged) override;
+	void OnEditPropertyMainDetailsView(const TArray<UObject*>&, const IPropertyHandle&);
 	UCamSettingTabFilterObject* wrapper;
 	
 protected:
@@ -51,4 +53,5 @@ protected:
 
 	FDetailsViewArgs detailsViewArgs;
 	TSharedPtr<IDetailsView> detailsView;
+	TSharedPtr<IPropertyChangeListener> changedListener;
 };
